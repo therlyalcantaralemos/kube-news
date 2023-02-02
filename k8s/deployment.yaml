@@ -11,7 +11,7 @@ spec:
       labels:
         app: postgre
     spec:
-      containers:
+      containers: 
         - name: postgre
           image: postgres:15.0
           ports:
@@ -22,29 +22,25 @@ spec:
           - name: POSTGRES_USER
             value: "kubenews"
           - name: POSTGRES_PASSWORD
-            value: "Pg#123"  
-
+            value: "Pg#123"
 ---
-
 apiVersion: v1
 kind: Service
 metadata:
   name: postgre
 spec:
-  selector: 
+  selector:
     app: postgre
   ports:
     - port: 5432
   type: ClusterIP
-
 ---
-
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: web
 spec:
-  replicas: 10
+  replicas: 4
   selector:
     matchLabels:
       app: web
@@ -52,14 +48,10 @@ spec:
     metadata:
       labels:
         app: web
-      annotations:
-        prometheus.io/scrape: "true"
-        prometheus.io/port: "8080"
-        prometheus.io/path: "/metrics"
     spec:
-      containers:
+      containers: 
         - name: web
-          image: fabricioveronez/kube-news:{{TAG}}
+          image: therlylemos/kube-news:v1
           ports:
           - containerPort: 8080
           env:
@@ -68,18 +60,19 @@ spec:
           - name: DB_USERNAME
             value: "kubenews"
           - name: DB_PASSWORD
-            value: "Pg#123" 
+            value: "Pg#123"
           - name: DB_HOST
-            value: "postgre"  
+            value: "postgre"
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: web
 spec:
-  selector: 
+  selector:
     app: web
   ports:
     - port: 80
       targetPort: 8080
-  type: LoadBalancer
+      # nodePort: 30000
+  type: LoadBalancer #consegue accessar usando ip externo
